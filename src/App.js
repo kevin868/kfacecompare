@@ -109,31 +109,32 @@ class CompFace extends Component {
           </div>
         </div>
         <button onClick={this.uploadHandler}>Upload</button>
-        <div>
-          {this.state.results ? (
-            <div className="summaryTable">
-              <table>
-                <tbody>
-                  <tr>
-                    <th>Face A</th>
-                    <th>Face B</th>
-                    <th>Distance</th>
-                  </tr>
-                  {this.state.results.map(([img1, img2, norm]) => (
-                    <tr>
-                      <td key={img1}>{img1}</td>
-                      <td key={img2}>{img2}</td>
-                      <td key={norm}>{norm}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : null}
-        </div>
+        <ResultsTable results={this.state.results} />
       </div>
     );
   }
 }
+
+const ResultsTable = (props) =>
+  props.results ? (
+    <div className="summaryTable">
+      <table>
+        <tbody>
+          <tr>
+            <th>Face A</th>
+            <th>Face B</th>
+            <th>Distance</th>
+          </tr>
+          {props.results.map(([img1, img2, norm]) => (
+            <tr>
+              <td>{img1}</td>
+              <td>{img2}</td>
+              <td>{norm}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : null;
 
 export default App;
