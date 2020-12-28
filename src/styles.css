@@ -1,0 +1,64 @@
+.fileContainer {
+	background: #fff;
+	box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.05);
+	position: relative;
+	border-radius: 10px;
+	padding: 20px 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	margin: 10px auto;
+	transition: all 0.3s ease-in;
+}
+
+.block {
+    display: inline-block;
+}
+
+.row {
+    display: flex;
+  }
+.column {
+    flex: 33.33%;
+    padding: 5px;
+  }
+
+/* .uploadPictureContainer {
+	width: 25%;
+	margin: 5%;
+	padding: 10px;
+	background: #edf2f6;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: auto;
+	box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.1);
+	border: 1px solid #d0dbe4;
+	position: relative;
+} */
+
+.uploadPictureContainer {
+	width: 5%;
+	margin: 5%;
+	background: #edf2f6;
+	height: auto;
+}
+
+.summaryTable {
+    margin: 30px
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 5px 10px;
+}
+
+h1{
+    text-align: center;
+}
+
+.intro {
+    padding: 10px
+}
