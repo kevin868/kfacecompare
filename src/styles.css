@@ -38,15 +38,15 @@
 	position: relative;
 } */
 
-.uploadPictureContainer {
+/* .uploadPictureContainer {
 	width: 5%;
 	margin: 5%;
 	background: #edf2f6;
 	height: auto;
-}
+} */
 
 .summaryTable {
-    margin: 30px
+    margin: 30px auto;
 }
 
 table, th, td {
@@ -55,10 +55,34 @@ table, th, td {
   padding: 5px 10px;
 }
 
-h1{
+h1 {
+    text-align: center;
+}
+
+.filename {
     text-align: center;
 }
 
 .intro {
     padding: 10px
+}
+
+.uploadFilesButton {
+	padding: 12px 50px;
+	background: #ddd;
+	border-radius: 30px;
+    color: #3f4257;
+    display: block;
+	font-weight: 300;
+	font-size: 14px;
+	margin: 20px auto;
+	transition: all 0.2s ease-in;
+	cursor: pointer;
+	outline: none;
+	border: 1px solid #3f4257;
+}
+
+.uploadFilesButton:hover {
+	background: #3f4257;
+	color: #fff;
 }

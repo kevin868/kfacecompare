@@ -25,7 +25,8 @@ const Intro = () => (
         <a href="http://cmusatyalab.github.io/openface/">OpenFace</a> pre-trained neural net models
         to compute a 128-dimensional face representation.
         <br />
-        Privacy Note: Our server does not store any of the photos you upload.
+        <br />
+        Privacy Note: Our server does not store any of the photos you submit.
       </div>
     </div>
   </div>
@@ -34,8 +35,12 @@ const Intro = () => (
 class CompFace extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = { isLoading: false };
   }
+
+  setIsLoading = (val) => {
+    this.setState({ isLoading: val });
+  };
 
   fileChangedHandler = (fileIndex) => (files) => {
     console.log(fileIndex);
@@ -46,6 +51,7 @@ class CompFace extends Component {
 
   uploadHandler = () => {
     console.log(this.state);
+    this.setIsLoading(true);
     const formData = new FormData();
     if (this.state.file1) {
       formData.append("imgs[]", this.state.file1, this.state.file1.name);
@@ -69,56 +75,64 @@ class CompFace extends Component {
 
   onBackendResult = (result) => {
     console.log(result);
+    this.setIsLoading(false);
     const resultTuple = result.data.msg;
     this.setState({ results: resultTuple });
+  };
+
+  getFilename = (fileNum) => {
+    return this.state[fileNum] ? this.state[fileNum].name : null;
   };
 
   render() {
     return (
       <div>
         <div className="row">
-          <div className="column">
-            <ImageUploader
-              withIcon={false}
-              buttonText="Choose Image 1"
-              onChange={this.fileChangedHandler("file1")}
-              withPreview={true}
-              imgExtension={[".jpg", ".gif", ".png", ".gif"]}
-              maxFileSize={5242880}
-            />
-          </div>
-          <div className="column">
-            <ImageUploader
-              withIcon={false}
-              buttonText="Choose Image 2"
-              onChange={this.fileChangedHandler("file2")}
-              withPreview={true}
-              imgExtension={[".jpg", ".gif", ".png", ".gif"]}
-              maxFileSize={5242880}
-            />
-          </div>
-          <div className="column">
-            <ImageUploader
-              withIcon={false}
-              buttonText="Choose Image 3"
-              onChange={this.fileChangedHandler("file3")}
-              withPreview={true}
-              imgExtension={[".jpg", ".gif", ".png", ".gif"]}
-              maxFileSize={5242880}
-            />
-          </div>
+          <UploadCell
+            num="1"
+            fileChangedHandler={this.fileChangedHandler}
+            getFilename={this.getFilename}
+          />
+          <UploadCell
+            num="2"
+            fileChangedHandler={this.fileChangedHandler}
+            getFilename={this.getFilename}
+          />
+          <UploadCell
+            num="3"
+            fileChangedHandler={this.fileChangedHandler}
+            getFilename={this.getFilename}
+          />
         </div>
-        <button onClick={this.uploadHandler}>Upload</button>
+        <button className="uploadFilesButton" onClick={this.uploadHandler}>
+          {this.state.isLoading ? "Loading ..." : "Submit"}
+        </button>
         <ResultsTable results={this.state.results} />
       </div>
     );
   }
 }
 
+const UploadCell = (props) => {
+  return (
+    <div className="column">
+      <ImageUploader
+        withIcon={false}
+        buttonText={`Choose Image ${props.num}`}
+        onChange={props.fileChangedHandler(`file${props.num}`)}
+        withPreview={true}
+        imgExtension={[".jpg", ".gif", ".png"]}
+        maxFileSize={5242880}
+      />
+      <div className="filename">{props.getFilename(`file${props.num}`)}</div>
+    </div>
+  );
+};
+
 const ResultsTable = (props) =>
   props.results ? (
-    <div className="summaryTable">
-      <table>
+    <div>
+      <table className="summaryTable">
         <tbody>
           <tr>
             <th>Face A</th>
