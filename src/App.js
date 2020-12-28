@@ -1,44 +1,12 @@
-import logo from "./logo.svg";
 import "./App.css";
 import "./styles.css";
-import { Component, useState } from "react";
+import { Component } from "react";
 import Axios from "axios";
 import ImageUploader from "./component/index.js";
 
 function App() {
   return (
     <div>
-      {/* <div className="block">
-      <ImageUploader
-          withIcon={true}
-          buttonText='Choose images'
-          onChange={console.log('changed')}
-          withPreview={true}
-          imgExtension={['.jpg', '.gif', '.png', '.gif']}
-          maxFileSize={5242880}
-      />
-      </div>
-      <div className="block">
-        <ImageUploader
-            withIcon={true}
-            buttonText='Choose images'
-            onChange={console.log('changed')}
-            withPreview={true}
-            imgExtension={['.jpg', '.gif', '.png', '.gif']}
-            maxFileSize={5242880}
-        />
-      </div>
-      <div className="block">
-        <ImageUploader
-            withIcon={true}
-            buttonText='Choose images'
-            onChange={console.log('changed')}
-            withPreview={true}
-            imgExtension={['.jpg', '.gif', '.png', '.gif']}
-            maxFileSize={5242880}
-        />
-      </div>
-      <div/> */}
       <Intro />
       <CompFace />
     </div>
@@ -62,52 +30,12 @@ const Intro = () => (
     </div>
   </div>
 );
-class Kapp extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { selectedFile: null };
-  }
-  fileChangedHandler = (event) => {
-    console.log("fileChanged");
-    this.setState({
-      selectedFile: URL.createObjectURL(event.target.files[0]),
-      file: event.target.files[0],
-    });
-  };
-
-  uploadHandler = () => {
-    console.log(this.state.selectedFile);
-    console.log(this.state.file);
-  };
-  render() {
-    return (
-      <div className="block">
-        <input type="file" accept="image/*" onChange={this.fileChangedHandler} />
-        <div>
-          <img src={this.state.selectedFile} alt={this.state.selectedFile} />
-        </div>
-        <div className="block">
-          <input type="file" accept="image/*" onChange={this.fileChangedHandler} />
-          <img src={this.state.selectedFile} alt={this.state.selectedFile} />
-        </div>
-        <button onClick={this.uploadHandler}>Upload</button>
-      </div>
-    );
-  }
-}
 
 class CompFace extends Component {
   constructor(props) {
     super(props);
     this.state = {};
-    // const [results, setResults] = useState();
   }
-
-  // fileChangedHandler = (event) => {
-  //   console.log('file1Changed')
-  //   this.setState({selectedFile: URL.createObjectURL(event.target.files[0]),
-  //   file: event.target.files[0]})
-  // }
 
   fileChangedHandler = (fileIndex) => (files) => {
     console.log(fileIndex);
