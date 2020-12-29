@@ -35,11 +35,14 @@ const Intro = () => (
 class CompFace extends Component {
   constructor(props) {
     super(props);
-    this.state = { isLoading: false };
+    this.state = { isLoading: false, isError: false };
   }
 
   setIsLoading = (val) => {
     this.setState({ isLoading: val });
+  };
+  setIsError = (val) => {
+    this.setState({ isError: val });
   };
 
   fileChangedHandler = (fileIndex) => (files) => {
@@ -68,20 +71,35 @@ class CompFace extends Component {
     } else {
       console.log("Missing file 3, Proceeding");
     }
-    console.log("*************");
     console.log(formData.getAll("imgs[]"));
-    Axios.post("http://localhost:9000/post_imgs", formData).then(this.onBackendResult);
+    Axios.post("http://192.168.1.6:9000/post_imgs", formData)
+      .then(this.onBackendResult)
+      .catch((error) => {
+        this.onBackendError(error);
+      });
   };
 
   onBackendResult = (result) => {
     console.log(result);
     this.setIsLoading(false);
+    this.setIsError(false);
     const resultTuple = result.data.msg;
     this.setState({ results: resultTuple });
+    this.scrollToBottom();
+  };
+
+  onBackendError = (error) => {
+    console.error(error);
+    this.setIsLoading(false);
+    this.setIsError(true);
   };
 
   getFilename = (fileNum) => {
     return this.state[fileNum] ? this.state[fileNum].name : null;
+  };
+
+  scrollToBottom = () => {
+    this.bottom.scrollIntoView({ behavior: "smooth" });
   };
 
   render() {
@@ -107,7 +125,14 @@ class CompFace extends Component {
         <button className="uploadFilesButton" onClick={this.uploadHandler}>
           {this.state.isLoading ? "Loading ..." : "Submit"}
         </button>
+        {this.state.isError ? <h5> Backend Error </h5> : null}
         <ResultsTable results={this.state.results} />
+        <div // Placekeeper Div to enable scroll to end
+          style={{ float: "left", clear: "both" }}
+          ref={(el) => {
+            this.bottom = el;
+          }}
+        ></div>
       </div>
     );
   }
@@ -121,7 +146,7 @@ const UploadCell = (props) => {
         buttonText={`Choose Image ${props.num}`}
         onChange={props.fileChangedHandler(`file${props.num}`)}
         withPreview={true}
-        imgExtension={[".jpg", ".gif", ".png"]}
+        imgExtension={[".jpg", ".gif", ".png", ".jpeg"]}
         maxFileSize={5242880}
       />
       <div className="filename">{props.getFilename(`file${props.num}`)}</div>
