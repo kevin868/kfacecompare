@@ -84,6 +84,11 @@ class CompFace extends Component {
       console.log("Missing file 3, Proceeding");
     }
     console.log(formData.getAll("imgs[]"));
+    if (formData.getAll("imgs[]").length < 2) {
+      this.setIsError(true);
+      this.setError("Sup pease 2");
+      return;
+    }
     const backend = "https://0dcfd0ab0492.ngrok.io/post_imgs";
     // Axios.post("http://192.168.1.6:9000/post_imgs", formData)
     Axios.post(backend, formData)
@@ -117,12 +122,19 @@ class CompFace extends Component {
     this.bottom.scrollIntoView({ behavior: "smooth" });
   };
 
-  errorHint = (error) =>
-    error.startsWith("Unable to find a face")
-      ? "Hint: try a different photo and crop around the face."
-      : null;
-
   render() {
+    const errorHint = (error) =>
+      error && error.startsWith("Unable to find a face") ? (
+        <h4 className="errorHint">Hint: try a different photo and crop around the face.</h4>
+      ) : null;
+
+    const ErrorMsg = this.state.isError ? (
+      <div className="errorMsg">
+        <h5>Error: {this.state.error} </h5>
+        {errorHint(this.state.error)}
+      </div>
+    ) : null;
+
     return (
       <div>
         <div className="row">
@@ -148,7 +160,7 @@ class CompFace extends Component {
         <button className="uploadFilesButton" onClick={this.uploadHandler}>
           {this.state.isLoading ? "Loading ..." : "Submit"}
         </button>
-        {this.state.isError ? <h5> Backend Error: {this.state.error} </h5> : null}
+        {ErrorMsg}
         <ResultsTable results={this.state.results} />
         <div // Placekeeper Div to enable scroll to end
           style={{ float: "left", clear: "both" }}
