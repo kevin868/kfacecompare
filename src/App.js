@@ -44,12 +44,24 @@ class CompFace extends Component {
   setIsError = (val) => {
     this.setState({ isError: val });
   };
+  setError = (val) => {
+    this.setState({ error: val });
+  };
 
+  // Target a specific file based on fileIndex
   fileChangedHandler = (fileIndex) => (files) => {
     console.log(fileIndex);
     console.log(files);
     // ImageUploader returns an array of Files
     this.setState({ [fileIndex]: files[0] });
+  };
+
+  onUpdateName = (fileIndex) => (event) => {
+    var oldMap = { ...this.state.fileToAliasMap };
+    const filename = this.getFilename(`file${fileIndex}`);
+    oldMap[filename] = event.target.value;
+    this.setState({ fileToAliasMap: oldMap });
+    // this.setState({ [fileIndex]: event.target.value });
   };
 
   uploadHandler = () => {
@@ -72,26 +84,29 @@ class CompFace extends Component {
       console.log("Missing file 3, Proceeding");
     }
     console.log(formData.getAll("imgs[]"));
-    Axios.post("http://192.168.1.6:9000/post_imgs", formData)
-      .then(this.onBackendResult)
+    const backend = "https://0dcfd0ab0492.ngrok.io/post_imgs";
+    // Axios.post("http://192.168.1.6:9000/post_imgs", formData)
+    Axios.post(backend, formData)
+      .then(this.onBackendResponse)
       .catch((error) => {
         this.onBackendError(error);
       });
   };
 
-  onBackendResult = (result) => {
-    console.log(result);
+  onBackendResponse = (response) => {
+    console.log(response);
     this.setIsLoading(false);
     this.setIsError(false);
-    const resultTuple = result.data.msg;
-    this.setState({ results: resultTuple });
+    const resultArray = response.data.resultsArray;
+    this.setState({ results: resultArray });
+    console.log(this.state);
     this.scrollToBottom();
   };
 
   onBackendError = (error) => {
-    console.error(error);
     this.setIsLoading(false);
     this.setIsError(true);
+    this.setError(error.response.data.error);
   };
 
   getFilename = (fileNum) => {
@@ -102,6 +117,11 @@ class CompFace extends Component {
     this.bottom.scrollIntoView({ behavior: "smooth" });
   };
 
+  errorHint = (error) =>
+    error.startsWith("Unable to find a face")
+      ? "Hint: try a different photo and crop around the face."
+      : null;
+
   render() {
     return (
       <div>
@@ -110,22 +130,25 @@ class CompFace extends Component {
             num="1"
             fileChangedHandler={this.fileChangedHandler}
             getFilename={this.getFilename}
+            onUpdateName={this.onUpdateName("1")}
           />
           <UploadCell
             num="2"
             fileChangedHandler={this.fileChangedHandler}
             getFilename={this.getFilename}
+            onUpdateName={this.onUpdateName("2")}
           />
           <UploadCell
             num="3"
             fileChangedHandler={this.fileChangedHandler}
             getFilename={this.getFilename}
+            onUpdateName={this.onUpdateName("3")}
           />
         </div>
         <button className="uploadFilesButton" onClick={this.uploadHandler}>
           {this.state.isLoading ? "Loading ..." : "Submit"}
         </button>
-        {this.state.isError ? <h5> Backend Error </h5> : null}
+        {this.state.isError ? <h5> Backend Error: {this.state.error} </h5> : null}
         <ResultsTable results={this.state.results} />
         <div // Placekeeper Div to enable scroll to end
           style={{ float: "left", clear: "both" }}
@@ -138,24 +161,26 @@ class CompFace extends Component {
   }
 }
 
-const UploadCell = (props) => {
+const UploadCell = ({ num, fileChangedHandler, getFilename, onUpdateName }) => {
   return (
     <div className="column">
       <ImageUploader
         withIcon={false}
-        buttonText={`Choose Image ${props.num}`}
-        onChange={props.fileChangedHandler(`file${props.num}`)}
+        buttonText={`Choose Image ${num}`}
+        onChange={fileChangedHandler(`file${num}`)}
         withPreview={true}
         imgExtension={[".jpg", ".gif", ".png", ".jpeg"]}
         maxFileSize={5242880}
+        singleImage={true}
       />
-      <div className="filename">{props.getFilename(`file${props.num}`)}</div>
+      <div className="filename">{getFilename(`file${num}`)}</div>
+      <input defaultValue={getFilename(`file${num}`)} type="text" onChange={onUpdateName} />
     </div>
   );
 };
 
-const ResultsTable = (props) =>
-  props.results ? (
+const ResultsTable = ({ results }) =>
+  results ? (
     <div>
       <table className="summaryTable">
         <tbody>
@@ -164,7 +189,7 @@ const ResultsTable = (props) =>
             <th>Face B</th>
             <th>Distance</th>
           </tr>
-          {props.results.map(([img1, img2, norm]) => (
+          {results.map(([img1, img2, norm]) => (
             <tr>
               <td>{img1}</td>
               <td>{img2}</td>
