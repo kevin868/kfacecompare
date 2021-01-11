@@ -35,7 +35,7 @@ const Intro = () => (
 class CompFace extends Component {
   constructor(props) {
     super(props);
-    this.state = { isLoading: false };
+    this.state = { isLoading: false, fileToAliasMap: {} };
   }
 
   setIsLoading = (val) => {
@@ -50,18 +50,36 @@ class CompFace extends Component {
   };
 
   // Target a specific file based on fileIndex
+  // Set into state , keyd by index { file1: fileX, file2: fileY, file3: fileZ}
   fileChangedHandler = (fileIndex) => (files) => {
     console.log(fileIndex);
-    console.log(files);
     // ImageUploader returns an array of Files
-    this.setState({ [fileIndex]: files[0] });
+    const fileStrIndex = `file${fileIndex}`;
+    this.setState({ [fileStrIndex]: files[0] });
+    // Create default name in fileToAliasMap
+    // Arbitrarily give long names (usually UUIDs) a default of A, B, C depending on fileIndex 1, 2, 3
+    // Ascii A = 65, B = 66..
+    const getAliasFromIndex = (index) => {
+      return String.fromCharCode(64 + index);
+    };
+    const filename = files[0].name;
+    const alias = filename.length > 14 ? getAliasFromIndex(fileIndex) : filename;
+    // If needed, add to our aliasMap
+    if (alias) {
+      //
+      var updateMap = this.state.fileToAliasMap || {};
+      updateMap[filename] = alias;
+      this.setState({ fileToAliasMap: updateMap });
+    }
   };
-
+  // TODO: Fix display issues, rename Face A / Face B in table
+  // Use aliasMap to display the rewritten names
+  // TODO change ReactApp Icon and text
   onUpdateName = (fileIndex) => (event) => {
-    var oldMap = { ...this.state.fileToAliasMap };
-    const filename = this.getFilename(`file${fileIndex}`);
-    oldMap[filename] = event.target.value;
-    this.setState({ fileToAliasMap: oldMap });
+    var updateMap = { ...this.state.fileToAliasMap };
+    const filename = this.getFilename(fileIndex);
+    updateMap[filename] = event.target.value;
+    this.setState({ fileToAliasMap: updateMap });
     // this.setState({ [fileIndex]: event.target.value });
   };
 
@@ -115,7 +133,12 @@ class CompFace extends Component {
   };
 
   getFilename = (fileNum) => {
-    return this.state[fileNum] ? this.state[fileNum].name : null;
+    const fileStrIndex = `file${fileNum}`;
+    return this.state[fileStrIndex] ? this.state[fileStrIndex].name : null;
+  };
+
+  getAliasFromFileIndex = (fileIndex) => {
+    return this.state.fileToAliasMap[this.getFilename(fileIndex)];
   };
 
   scrollToBottom = () => {
@@ -139,22 +162,25 @@ class CompFace extends Component {
       <div>
         <div className="row">
           <UploadCell
-            num="1"
+            num={1}
             fileChangedHandler={this.fileChangedHandler}
             getFilename={this.getFilename}
-            onUpdateName={this.onUpdateName("1")}
+            getAliasFromFileIndex={this.getAliasFromFileIndex}
+            onUpdateName={this.onUpdateName(1)}
           />
           <UploadCell
-            num="2"
+            num={2}
             fileChangedHandler={this.fileChangedHandler}
             getFilename={this.getFilename}
-            onUpdateName={this.onUpdateName("2")}
+            getAliasFromFileIndex={this.getAliasFromFileIndex}
+            onUpdateName={this.onUpdateName(2)}
           />
           <UploadCell
-            num="3"
+            num={3}
             fileChangedHandler={this.fileChangedHandler}
             getFilename={this.getFilename}
-            onUpdateName={this.onUpdateName("3")}
+            getAliasFromFileIndex={this.getAliasFromFileIndex}
+            onUpdateName={this.onUpdateName(3)}
           />
         </div>
         <button className="uploadFilesButton" onClick={this.uploadHandler}>
@@ -173,20 +199,35 @@ class CompFace extends Component {
   }
 }
 
-const UploadCell = ({ num, fileChangedHandler, getFilename, onUpdateName }) => {
+const UploadCell = ({
+  num,
+  fileChangedHandler,
+  getFilename,
+  getAliasFromFileIndex,
+  onUpdateName,
+}) => {
   return (
     <div className="column">
       <ImageUploader
         withIcon={false}
         buttonText={`Choose Image ${num}`}
-        onChange={fileChangedHandler(`file${num}`)}
+        onChange={fileChangedHandler(num)}
         withPreview={true}
         imgExtension={[".jpg", ".gif", ".png", ".jpeg"]}
         maxFileSize={5242880}
         singleImage={true}
       />
-      <div className="filename">{getFilename(`file${num}`)}</div>
-      <input defaultValue={getFilename(`file${num}`)} type="text" onChange={onUpdateName} />
+      <div className="filename">
+        {getFilename(num)}
+        <div>
+          <input
+            title="(Optional) Type person's name"
+            defaultValue={getAliasFromFileIndex(num)}
+            type="text"
+            onChange={onUpdateName}
+          />
+        </div>
+      </div>
     </div>
   );
 };
