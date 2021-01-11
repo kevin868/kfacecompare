@@ -18,7 +18,7 @@ const Intro = () => (
     <h1>FaceCompare</h1>
     <div className="intro">
       <div>
-        Select 2 or 3 images to compute the distance between them.
+        Select 2 or 3 pictures of people to calculate how similar they are.
         <br />
         <br />
         This tool uses dlib for face detection, and{" "}
