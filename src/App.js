@@ -190,6 +190,7 @@ class CompFace extends Component {
           {this.state.isLoading ? "Loading ..." : "Submit"}
         </button>
         {ErrorMsg}
+        <ResultsSimilarityTable results={this.state.results} getAliasFromKey={getAliasFromKey} />
         <ResultsTable results={this.state.results} getAliasFromKey={getAliasFromKey} />
         <div // Placekeeper Div to enable scroll to end
           style={{ float: "left", clear: "both" }}
@@ -255,6 +256,38 @@ const ResultsTable = ({ results, getAliasFromKey }) => {
               <td>{getAliasFromKey(img1)}</td>
               <td>{getAliasFromKey(img2)}</td>
               <td>{norm}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : null;
+};
+
+const ResultsSimilarityTable = ({ results, getAliasFromKey }) => {
+  const computeSimilarity = (norm) => 1 / (1 + Math.pow(Math.E, 2.8 * (norm - 1.6)));
+  // Multiply similarity by 100 to turn into percent
+  const formattedSim = (norm) => Math.round(computeSimilarity(norm) * 100 * 10) / 10;
+  return results ? (
+    <div>
+      <table className="summaryTable">
+        <tbody>
+          <tr>
+            <th>Face 1</th>
+            <th>Face 2</th>
+            <th>Similarity</th>
+          </tr>
+          {results.map(([img1, img2, norm]) => (
+            <tr>
+              <td>{getAliasFromKey(img1)}</td>
+              <td>{getAliasFromKey(img2)}</td>
+              <td>
+                {computeSimilarity(norm) > 0.6 ? (
+                  <b>{formattedSim(norm)}%</b>
+                ) : (
+                  `${formattedSim(norm)}%`
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
