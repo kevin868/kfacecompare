@@ -79,6 +79,10 @@ h1 {
 	color: blue;
 }
 
+.hintPadded {
+	padding-bottom: 20px;
+}
+
 .uploadFilesButton {
 	padding: 12px 50px;
 	background: #ddd;

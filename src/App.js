@@ -46,7 +46,7 @@ class CompFace extends Component {
     this.setState(nextState);
   };
   setError = (val) => {
-    this.setState({ error: val });
+    this.setState({ error: val || "Backend is down. It's Kevin's fault! Try again in 12 hours." });
   };
 
   // Target a specific file based on fileIndex
@@ -198,7 +198,7 @@ class CompFace extends Component {
         ) : null}
         <ResultsTable results={this.state.results} getAliasFromKey={getAliasFromKey} />
         {this.state.results ? (
-          <div className="filename errorHint">
+          <div className="filename errorHint hintPadded">
             Hint: Edit the person's name in the box (optional). This makes the tables easier to
             read!
           </div>
