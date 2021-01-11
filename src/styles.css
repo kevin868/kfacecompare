@@ -63,6 +63,10 @@ h1 {
     text-align: center;
 }
 
+.fileRename {
+	font-size:25px;
+}
+
 .intro {
     padding: 10px
 }

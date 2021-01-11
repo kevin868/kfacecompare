@@ -191,7 +191,18 @@ class CompFace extends Component {
         </button>
         {ErrorMsg}
         <ResultsSimilarityTable results={this.state.results} getAliasFromKey={getAliasFromKey} />
+        {this.state.results ? (
+          <div className="filename">
+            Raw Distances between Image Representations (Smaller is more similar)
+          </div>
+        ) : null}
         <ResultsTable results={this.state.results} getAliasFromKey={getAliasFromKey} />
+        {this.state.results ? (
+          <div className="filename errorHint">
+            Hint: Edit the person's name in the box (optional). This makes the tables easier to
+            read!
+          </div>
+        ) : null}
         <div // Placekeeper Div to enable scroll to end
           style={{ float: "left", clear: "both" }}
           ref={(el) => {
@@ -229,6 +240,7 @@ const UploadCell = ({
         {getFilename(num)}
         <div>
           <input
+            className="fileRename"
             title="(Optional) Type person's name"
             defaultValue={getAliasFromFileIndex(num)}
             type="text"
