@@ -59,11 +59,9 @@ class CompFace extends Component {
     // Create default name in fileToAliasMap
     // Arbitrarily give long names (usually UUIDs) a default of A, B, C depending on fileIndex 1, 2, 3
     // Ascii A = 65, B = 66..
-    const getAliasFromIndex = (index) => {
-      return String.fromCharCode(64 + index);
-    };
-    const filename = files[0].name;
-    const alias = filename.length > 14 ? getAliasFromIndex(fileIndex) : filename;
+
+    const filename = files[0] && files[0].name;
+    const alias = filename && filename.length > 32 ? getAliasFromIndex(fileIndex) : filename;
     // If needed, add to our aliasMap
     if (alias) {
       //
@@ -71,6 +69,7 @@ class CompFace extends Component {
       updateMap[filename] = alias;
       this.setState({ fileToAliasMap: updateMap });
     }
+    // Note: currently this leads to buildup of canceled files in the fileToAliasMap
   };
   // TODO: Fix display issues, rename Face A / Face B in table
   // Use aliasMap to display the rewritten names
@@ -89,17 +88,17 @@ class CompFace extends Component {
     if (this.state.file1) {
       formData.append("imgs[]", this.state.file1, this.state.file1.name);
     } else {
-      console.log("Must select Image 1");
+      console.log("Must select Image A");
     }
     if (this.state.file2) {
       formData.append("imgs[]", this.state.file2, this.state.file2.name);
     } else {
-      console.log("Must select Image 2");
+      console.log("Must select Image B");
     }
     if (this.state.file3) {
       formData.append("imgs[]", this.state.file3, this.state.file3.name);
     } else {
-      console.log("Missing file 3, Proceeding");
+      console.log("Missing Image C, Proceeding");
     }
     console.log(formData.getAll("imgs[]"));
     if (formData.getAll("imgs[]").length < 2) {
@@ -128,7 +127,7 @@ class CompFace extends Component {
 
   onBackendError = (error) => {
     this.setIsLoading(false);
-    this.setError(error.response.data.error);
+    this.setError(error.response && error.response.data.error);
     this.scrollToBottom();
   };
 
@@ -157,6 +156,10 @@ class CompFace extends Component {
         {errorHint(this.state.error)}
       </div>
     ) : null;
+
+    const getAliasFromKey = (key) => {
+      return this.state.fileToAliasMap[key] || key;
+    };
 
     return (
       <div>
@@ -187,7 +190,7 @@ class CompFace extends Component {
           {this.state.isLoading ? "Loading ..." : "Submit"}
         </button>
         {ErrorMsg}
-        <ResultsTable results={this.state.results} />
+        <ResultsTable results={this.state.results} getAliasFromKey={getAliasFromKey} />
         <div // Placekeeper Div to enable scroll to end
           style={{ float: "left", clear: "both" }}
           ref={(el) => {
@@ -198,6 +201,10 @@ class CompFace extends Component {
     );
   }
 }
+
+const getAliasFromIndex = (index) => {
+  return String.fromCharCode(64 + index);
+};
 
 const UploadCell = ({
   num,
@@ -210,7 +217,7 @@ const UploadCell = ({
     <div className="column">
       <ImageUploader
         withIcon={false}
-        buttonText={`Choose Image ${num}`}
+        buttonText={`Choose Image ${getAliasFromIndex(num)}`}
         onChange={fileChangedHandler(num)}
         withPreview={true}
         imgExtension={[".jpg", ".gif", ".png", ".jpeg"]}
@@ -232,20 +239,21 @@ const UploadCell = ({
   );
 };
 
-const ResultsTable = ({ results }) =>
-  results ? (
+// Pass the function getAliasFromKey because React does not allow passing the object aliasMap for rending children
+const ResultsTable = ({ results, getAliasFromKey }) => {
+  return results ? (
     <div>
       <table className="summaryTable">
         <tbody>
           <tr>
-            <th>Face A</th>
-            <th>Face B</th>
+            <th>Face 1</th>
+            <th>Face 2</th>
             <th>Distance</th>
           </tr>
           {results.map(([img1, img2, norm]) => (
             <tr>
-              <td>{img1}</td>
-              <td>{img2}</td>
+              <td>{getAliasFromKey(img1)}</td>
+              <td>{getAliasFromKey(img2)}</td>
               <td>{norm}</td>
             </tr>
           ))}
@@ -253,5 +261,5 @@ const ResultsTable = ({ results }) =>
       </table>
     </div>
   ) : null;
-
+};
 export default App;
