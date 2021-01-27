@@ -121,7 +121,7 @@ class CompFace extends Component {
     // const backend = "https://0dcfd0ab0492.ngrok.io/post_imgs";
     // const backend = "http://localhost:8089/post_imgs";
     // Cloud Engine instance
-    const backend = "http://35.194.36.121:8089/post_imgs";
+    const backend = "https://35.194.36.121/post_imgs";
     Axios.post(backend, formData)
       .then(this.onBackendResponse)
       .catch((error) => {
