@@ -141,6 +141,7 @@ class CompFace extends Component {
   onBackendError = (error, numPhotos) => {
     this.setIsLoading(false);
     this.setError(error.response && error.response.data.error);
+    this.setState({ results: null });
     this.sendGoogleErrorEvent(numPhotos);
     this.scrollToBottom();
   };
