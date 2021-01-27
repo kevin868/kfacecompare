@@ -293,24 +293,21 @@ const ResultsTable = ({ results, getAliasFromKey }) => {
 };
 
 const ResultsSimilarityTable = ({ results, getAliasFromKey }) => {
-  const computeSimilarity = (norm) => 1 / (1 + Math.pow(Math.E, 3 * (norm - 2.08)));
-  const computeSimilaritySub2 = (norm) => 1 / (1 + Math.pow(Math.E, 1.5 * (norm - 2.08)));
-  //Linear interpolation between endpoints for 0.15 < x < 0.4
-  const copmuteSimilaritySamePerson = (norm) => -0.2978717807 * norm + 1.044680767; // Push these values closer to 1
+  const computeSimilarity = (norm) => 1 / (1 + Math.pow(Math.E, 2 * (norm - 1.6)));
+  // Interpolate between 1 and Fermi func, when between 0.15 and 0.4
+  const computeSimilaritySamePerson = (norm) =>
+    (1 * (0.4 - norm) + computeSimilarity(norm) * (norm - 0.15)) / (0.4 - 0.15);
   const findSimilarity = (norm) => {
     if (norm <= 0.15) {
       return 1;
     }
-    if (norm > 2.08) {
+    if (norm > 0.4) {
       return computeSimilarity(norm);
-    }
-    if (norm <= 2.08 && norm > 0.4) {
-      return computeSimilaritySub2(norm);
     } else {
-      return copmuteSimilaritySamePerson(norm);
+      // Compute average between (1.0 flat and Fermi function)
+      return computeSimilaritySamePerson(norm);
     }
   };
-  //when < 0.15, P = 1. when 0.15 <= P< 0.3
   // Multiply similarity by 100 to turn into percent
   const formattedSim = (norm) => Math.round(findSimilarity(norm) * 100 * 10) / 10;
   return results ? (
