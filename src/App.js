@@ -49,6 +49,14 @@ class CompFace extends Component {
     this.setState({ error: val || "Backend is down. It's Kevin's fault! Try again in 12 hours." });
   };
 
+  sendGoogleEvent = (numPhotos) => {
+    window.gtag("event", "submit", { num_photos: numPhotos });
+  };
+
+  sendGoogleErrorEvent = (numPhotos) => {
+    window.gtag("event", "backend_error", { num_photos: numPhotos });
+  };
+
   // Target a specific file based on fileIndex
   // Set into state , keyd by index { file1: fileX, file2: fileY, file3: fileZ}
   fileChangedHandler = (fileIndex) => (files) => {
@@ -71,9 +79,7 @@ class CompFace extends Component {
     }
     // Note: currently this leads to buildup of canceled files in the fileToAliasMap
   };
-  // TODO: Fix display issues, rename Face A / Face B in table
-  // Use aliasMap to display the rewritten names
-  // TODO change ReactApp Icon and text
+  // Use aliasMap to stash & display the rewritten names
   onUpdateName = (fileIndex) => (event) => {
     var updateMap = { ...this.state.fileToAliasMap };
     const filename = this.getFilename(fileIndex);
@@ -85,18 +91,22 @@ class CompFace extends Component {
   uploadHandler = () => {
     console.log(this.state);
     const formData = new FormData();
+    var numPhotos = 0;
     if (this.state.file1) {
       formData.append("imgs[]", this.state.file1, this.state.file1.name);
+      numPhotos += 1;
     } else {
       console.log("Must select Image A");
     }
     if (this.state.file2) {
       formData.append("imgs[]", this.state.file2, this.state.file2.name);
+      numPhotos += 1;
     } else {
       console.log("Must select Image B");
     }
     if (this.state.file3) {
       formData.append("imgs[]", this.state.file3, this.state.file3.name);
+      numPhotos += 1;
     } else {
       console.log("Missing Image C, Proceeding");
     }
@@ -107,12 +117,16 @@ class CompFace extends Component {
       return;
     }
     this.setIsLoading(true);
-    const backend = "https://0dcfd0ab0492.ngrok.io/post_imgs";
+    this.sendGoogleEvent(numPhotos);
+    // const backend = "https://0dcfd0ab0492.ngrok.io/post_imgs";
+    const backend = "http://localhost:8089/post_imgs";
+    // Cloud Engine instance
+    // const backend = "http://34.123.140.94:8089/post_imgs";
     // Axios.post("http://192.168.1.6:9000/post_imgs", formData)
     Axios.post(backend, formData)
       .then(this.onBackendResponse)
       .catch((error) => {
-        this.onBackendError(error);
+        this.onBackendError(error, numPhotos);
       });
   };
 
@@ -125,9 +139,10 @@ class CompFace extends Component {
     this.scrollToBottom();
   };
 
-  onBackendError = (error) => {
+  onBackendError = (error, numPhotos) => {
     this.setIsLoading(false);
     this.setError(error.response && error.response.data.error);
+    this.sendGoogleErrorEvent(numPhotos);
     this.scrollToBottom();
   };
 
@@ -237,7 +252,8 @@ const UploadCell = ({
         singleImage={true}
       />
       <div className="filename">
-        {getFilename(num)}
+        {/* Only display filename if we replace the edit box with shortened name */}
+        {getFilename(num) === getAliasFromFileIndex(num) ? null : getFilename(num)}
         <div>
           <input
             className="fileRename"
