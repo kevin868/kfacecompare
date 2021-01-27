@@ -21,7 +21,7 @@ const Intro = () => (
         Select 2 or 3 pictures of people to calculate how similar they are.
         <br />
         <br />
-        This tool uses dlib for face detection, and{" "}
+        This tool uses dlib, OpenCV for face detection, and{" "}
         <a href="http://cmusatyalab.github.io/openface/">OpenFace</a> pre-trained neural net models
         to compute a 128-dimensional face representation.
         <br />
