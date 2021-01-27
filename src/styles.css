@@ -72,10 +72,12 @@ h1 {
 }
 
 .errorMsg {
+	text-align: center;
     padding: 10px
 }
 
 .errorHint {
+	text-align: center;
 	color: blue;
 }
 
