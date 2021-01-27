@@ -119,10 +119,9 @@ class CompFace extends Component {
     this.setIsLoading(true);
     this.sendGoogleEvent(numPhotos);
     // const backend = "https://0dcfd0ab0492.ngrok.io/post_imgs";
-    const backend = "http://localhost:8089/post_imgs";
+    // const backend = "http://localhost:8089/post_imgs";
     // Cloud Engine instance
-    // const backend = "http://34.123.140.94:8089/post_imgs";
-    // Axios.post("http://192.168.1.6:9000/post_imgs", formData)
+    const backend = "http://34.123.140.94:8089/post_imgs";
     Axios.post(backend, formData)
       .then(this.onBackendResponse)
       .catch((error) => {
